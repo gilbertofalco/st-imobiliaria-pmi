@@ -29,7 +29,7 @@ service firebase.storage {
 
     function isSafeImage(fileName) {
       return request.resource != null
-        && request.resource.size <= 5 * 1024 * 1024
+        && request.resource.size <= 20 * 1024 * 1024
         && (
           hasSafeImageExtension(fileName)
           || (
@@ -50,9 +50,9 @@ service firebase.storage {
     }
 
     match /{folder}/{fileName} {
-      allow read: if isAuthorized() && isAnaliseFolder(folder);
-      allow create, update: if isAuthorized() && isAnaliseFolder(folder) && isSafeImage(fileName);
-      allow delete: if isAuthorized() && isAnaliseFolder(folder);
+      allow read: if signedIn() && isAnaliseFolder(folder);
+      allow create, update: if signedIn() && isAnaliseFolder(folder) && isSafeImage(fileName);
+      allow delete: if signedIn() && isAnaliseFolder(folder);
     }
 
     match /{allPaths=**} {
