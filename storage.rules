@@ -7,7 +7,7 @@ service firebase.storage {
     }
 
     function userEmail() {
-      return request.auth.token.email;
+      return request.auth.token.email.lower();
     }
 
     function isAuthorized() {
@@ -31,10 +31,10 @@ service firebase.storage {
       return request.resource != null
         && request.resource.size <= 5 * 1024 * 1024
         && (
-          request.resource.contentType.matches('image/(jpeg|jpg|png|webp)')
+          hasSafeImageExtension(fileName)
           || (
-            request.resource.contentType == 'application/octet-stream'
-            && hasSafeImageExtension(fileName)
+            request.resource.contentType is string
+            && request.resource.contentType.matches('image/(jpeg|jpg|png|webp)')
           )
         );
     }
