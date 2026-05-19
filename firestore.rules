@@ -7,7 +7,7 @@ service cloud.firestore {
     }
 
     function userEmail() {
-      return request.auth.token.email;
+      return request.auth.token.email.lower();
     }
 
     function isAuthorized() {
