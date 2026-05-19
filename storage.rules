@@ -23,10 +23,20 @@ service firebase.storage {
       return isAuthorized() && userData().nivel in ['admin', 'master'];
     }
 
-    function isSafeImage() {
+    function hasSafeImageExtension(fileName) {
+      return fileName.matches('.*[.](jpg|jpeg|png|webp|JPG|JPEG|PNG|WEBP)$');
+    }
+
+    function isSafeImage(fileName) {
       return request.resource != null
         && request.resource.size <= 5 * 1024 * 1024
-        && request.resource.contentType.matches('image/(jpeg|png|webp)');
+        && (
+          request.resource.contentType.matches('image/(jpeg|jpg|png|webp)')
+          || (
+            request.resource.contentType == 'application/octet-stream'
+            && hasSafeImageExtension(fileName)
+          )
+        );
     }
 
     function isAnaliseFolder(folder) {
@@ -35,13 +45,13 @@ service firebase.storage {
 
     match /corretores/{fileName} {
       allow read: if isAuthorized();
-      allow create, update: if isAdmin() && isSafeImage();
+      allow create, update: if isAdmin() && isSafeImage(fileName);
       allow delete: if isAdmin();
     }
 
     match /{folder}/{fileName} {
       allow read: if isAuthorized() && isAnaliseFolder(folder);
-      allow create, update: if isAuthorized() && isAnaliseFolder(folder) && isSafeImage();
+      allow create, update: if isAuthorized() && isAnaliseFolder(folder) && isSafeImage(fileName);
       allow delete: if isAuthorized() && isAnaliseFolder(folder);
     }
 
